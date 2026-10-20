@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="localhost.retail_stg"
+  DTS:DTSID="{85B279D9-F0EA-46E2-8949-7BD08BCC5C0F}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=localhost;Initial Catalog=retail_stg;Provider=MSOLEDBSQL.1;Integrated Security=SSPI;Application Name=SSIS-pipeline_1-{85B279D9-F0EA-46E2-8949-7BD08BCC5C0F}localhost.retail_stg;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>
