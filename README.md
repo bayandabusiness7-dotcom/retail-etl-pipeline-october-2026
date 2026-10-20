@@ -1,65 +1,55 @@
-# Retail Database Setup
+Retail Sales Data Warehouse — Medallion Architecture (SQL Server)
+A data warehouse built on SQL Server using the Medallion Architecture (Bronze → Silver → Gold), with SSIS for ingestion and T-SQL for transformations.
 
-SQL Server script that creates the staging and warehouse databases, their schemas, and the raw landing table for the retail sales data.
+🏗️ Architecture
+ CSV source  ──SSIS──►  stg_Db.bronze  ──T-SQL──►  dwh_db.silver  ──T-SQL──►  dwh_db.gold  ──►  Reporting
+                        (raw, as-is)               (clean, typed)             (facts & dims)
+Layer	Database	Schema	Purpose
+Bronze	stg_Db	bronze	Raw data loaded exactly as received. All columns VARCHAR(50).
+Silver	dwh_db	silver	Cleaned, deduplicated, correctly typed and standardised data.
+Gold	dwh_db	gold	Business-ready star schema (fact and dimension views).
+📁 Repository Structure
+├── datasets/
+│   └── retail_sales_dataset.csv     # Source data
+├── scripts/
+│   ├── init_database.sql            # Creates databases, schemas and bronze tables
+│   ├── bronze/                      # SSIS packages / bulk load scripts
+│   ├── silver/                      # Cleaning and transformation scripts
+│   └── gold/                        # Fact and dimension views
+└── README.md
+📊 Source Dataset
+bronze.retail_sales_dataset
 
-## Files
+Column	Bronze Type	Target Silver Type
+Transaction ID	VARCHAR(50)	INT
+Date	VARCHAR(50)	DATE
+Customer ID	VARCHAR(50)	VARCHAR(20)
+Gender	VARCHAR(50)	VARCHAR(10)
+Age	VARCHAR(50)	INT
+Product Category	VARCHAR(50)	VARCHAR(50)
+Quantity	VARCHAR(50)	INT
+Price per Unit	VARCHAR(50)	DECIMAL(10,2)
+Total Amount	VARCHAR(50)	DECIMAL(10,2)
+Bronze stores everything as text so that bad rows land in the table instead of failing the load. All type casting happens in Silver.
 
-| File | Purpose |
-|------|---------|
-| `create_retail_db.sql` | Creates databases, schemas and the raw table |
-
-## What the script creates
-
-### Databases
-
-| Database | Purpose |
-|----------|---------|
-| `retail_stg` | Staging database where raw data lands |
-| `retail_dwh` | Data warehouse for cleaned and modelled data |
-
-### Schemas
-
-| Database | Schema | Layer |
-|----------|--------|-------|
-| `retail_stg` | `bronze` | Raw data, loaded as is from the source file |
-| `retail_dwh` | `silver` | Cleaned and standardised data |
-| `retail_dwh` | `gold` | Business-ready data for reporting |
-
-### Tables
-
-`bronze.retail_sales_raw` in `retail_stg`. All columns are `VARCHAR(50)` so the flat file loads without type errors.
-
-| Column | Type |
-|--------|------|
-| Transaction ID | VARCHAR(50) |
-| Date | VARCHAR(50) |
-| Customer ID | VARCHAR(50) |
-| Gender | VARCHAR(50) |
-| Age | VARCHAR(50) |
-| Product Category | VARCHAR(50) |
-| Quantity | VARCHAR(50) |
-| Price per Unit | VARCHAR(50) |
-| Total Amount | VARCHAR(50) |
-
-## How to run
-
-1. Open SQL Server Management Studio (SSMS) and connect to your instance.
-2. Open `create_retail_db.sql` (**File > Open > File**).
-3. Press **F5** to execute.
-4. Check the results of the verify queries at the end of the script.
-
-The script is safe to re-run. Every step checks whether the object already exists before creating it.
-
-## Loading data
-
-The raw table is designed to be the destination for an SSIS package:
-
-1. In Visual Studio, create a Flat File Source pointing to the retail sales CSV.
-2. Add an OLE DB Destination using a connection manager to `retail_stg` on `localhost`.
-3. Map the source columns to `bronze.retail_sales_raw`.
-4. Run the package.
-
-## Next steps
-
-- Build silver tables in `retail_dwh` that convert the text columns to proper data types (dates, integers, decimals).
-- Build gold tables or views for reporting.
+🚀 Getting Started
+Prerequisites
+SQL Server (Developer or Express edition)
+SQL Server Management Studio (SSMS)
+Visual Studio with the SQL Server Integration Services Projects extension
+Setup
+Clone the repo
+git clone https://github.com/<your-username>/<repo-name>.git
+Create the databases, schemas and tables. Open scripts/init_database.sql in SSMS and run it with F5. The script is safe to rerun: it only creates objects that don't already exist.
+Load Bronze. Run the SSIS package, which uses a Flat File Source feeding an OLE DB Destination at [bronze].[retail_sales_dataset].
+Verify the load
+SELECT COUNT(*) FROM stg_Db.bronze.retail_sales_dataset;
+🛣️ Roadmap
+ Create databases and schemas
+ Create bronze table
+ Load raw CSV into bronze via SSIS
+ Silver: cleaning, casting and deduplication
+ Gold: fact_sales, dim_customer, dim_product, dim_date
+ Data quality checks
+ Reporting layer
+🛠️ Tech Stack
